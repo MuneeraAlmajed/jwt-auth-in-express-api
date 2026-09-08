@@ -19,14 +19,22 @@ mongoose.connection.on('connected', () => {
   console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
 });
 
+//db
+require('./config/database.js')
+
+//routes
+const authRoutes = require('./routes/authRoutes');
+const protectedRoutes = require('./routes/protectedRoutes');
+
 app.use(cors());
 app.use(express.json());
 app.use(logger('dev'));
 
 
 // PUBLIC ROUTES
-app.post('/auth/sign-up', authCtrl.signup)
-app.post('/auth/sign-in', authCtrl.login)
+
+app.use('/auth', authRoutes);
+app.use(protectedRoutes);
 
 //PROTECTED ROUTES
 
