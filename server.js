@@ -10,6 +10,9 @@ const logger = require('morgan');
 const testJWTCtrl = require('./controllers/test-jwt');
 const authCtrl = require('./controllers/authCtrl');
 
+//middleware
+const isSignedIn = require('./middleware/isSignedIn.js');
+
 mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on('connected', () => {
@@ -21,12 +24,24 @@ app.use(express.json());
 app.use(logger('dev'));
 
 
-
+// PUBLIC ROUTES
 app.post('/auth/sign-up', authCtrl.signup)
-// Routes go here
+app.post('/auth/sign-in', authCtrl.login)
 
-app.get('/sign-token', testJWTCtrl.signToken);
-app.get('/verify-token', testJWTCtrl.verifyToken);
+//PROTECTED ROUTES
+
+
+app.get('/protected', isSignedIn ,(req,res) => {
+    try{
+        const userPayload = req.user;
+
+        res.status(200).json({user: userPayload})
+    }catch(err){
+        res.status(500).json({err: 'Something went wrong'});
+    }
+})
+
+
 
 
 app.listen(3000, () => {

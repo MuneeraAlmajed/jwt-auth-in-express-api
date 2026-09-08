@@ -38,6 +38,38 @@ const signup = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  try {
+    const userInDatabase = await User.findOne({
+      username: req.body.username
+    });
+
+    // Only allow users that exist to login
+    if (!userInDatabase) {
+      return res.status(401).json({ err: 'Invalid credentials' });
+    }
+
+    // Make sure the password matches
+    if (!bcrypt.compareSync(req.body.password, userInDatabase.password)) {
+      return res.status(401).json({ err: 'Invalid credentials' });
+    }
+
+    // Create JWT payload
+    const payload = {
+      username: userInDatabase.username,
+      _id: userInDatabase._id,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET);
+
+    res.json({ token });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err: err.message });
+  }
+};
+
 module.exports = {
-    signup, 
+    signup, login,
 }
