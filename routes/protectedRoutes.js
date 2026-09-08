@@ -4,9 +4,17 @@ const router = express.Router();
 const isSignedIn = require('../middleware/isSignedIn');
 
 router.get('/protected', isSignedIn, (req, res) => {
-  const userPayload = req.user;
+  try {
+    const userPayload = req.user;
 
-  res.status(200).json({ user: userPayload });
+    res.status(200).json({
+      user: userPayload
+    });
+  } catch (err) {
+    res.status(500).json({
+      err: 'Something went wrong'
+    });
+  }
 });
 
 module.exports = router;
